@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <limits.h>
+#include <stack>
+using namespace std;
+int min(int x, int y){
+	if(x < y){
+		return x;
+	}else{
+		return y;
+	}
+};
+void dynamicProgramming(){
+	//max is the number of cities.
+	int max = 11;
+	//index is a holder for our stack removal process.
+	int index = 10;
+	//This stack will hold the indexes for the cities.
+	// It keeps track of the path travelled through the Path array
+	// and the values will be used later as indexes of the nameArr.
+	stack<int> nameStack;
+	bool done = false;
+	// array of all the city names in order.
+	string nameArr[] = {"New York City", "Allentown", "Scranton", "Binghamton", "Albany", "Syracuse", "Montreal", "Kingston", "Rochester", "Buffalo", "Toronto"};
+	int pArr[max][max];
+	double dArr[max][max];
+	// initalize the distance array to a large value.
+	for(int i = 0; i < max; i++){
+		for(int j = 0; j < max; j++){
+			dArr[i][j] = INT_MAX;
+		}
+	}
+	//This part is just all of the values of the grid that we're given.
+	//Each index represents a different city. The list of cities is:
+	// 0 = New York City
+	// 1 = Allentown
+	// 2 = Scranton
+	// 3 = Binghamton
+	// 4 = Albany
+	// 5 = Syracuse
+	// 6 = Montreal
+	// 7 = Kingston
+	// 8 = Rochester
+	// 9 = Buffalo
+	// 10 = Toronto
+	dArr[0][1] = 70;
+	dArr[0][2] = 100;
+	dArr[0][3] = 180;
+	dArr[0][4] = 140;
+	dArr[1][0] = 70;
+	dArr[1][2] = 65;
+	dArr[2][0] = 100;
+	dArr[2][1] = 65;
+	dArr[2][3] = 60;
+	dArr[3][0] = 180;
+	dArr[3][2] = 60;
+	dArr[3][5] = 70;
+	dArr[4][0] = 140;
+	dArr[4][5] = 100;
+	dArr[4][6] = 130;
+	dArr[5][3] = 70;
+	dArr[5][4] = 100;
+	dArr[5][7] = 65;
+	dArr[5][8] = 70;
+	dArr[6][4] = 130;
+	dArr[6][7] = 160;
+	dArr[7][5] = 65;
+	dArr[7][6] = 160;
+	dArr[7][10] = 180;
+	dArr[8][5] = 70;
+	dArr[8][9] = 60;
+	dArr[9][8] = 60;
+	dArr[9][10] = 100;
+	//Initialize the path array to 0.
+	for(int i = 0; i < max; i++){
+		for(int j = 0; j < max; j++){
+			pArr[i][j] = 0;
+		}
+	}
+	// This is the algorithm from the slides. The dArr starts at D^0
+	// and the pArr starts at P^0. We then loop through and dynamically
+	// add the distance values up from city to city and keep the lowest
+	// value out of all the cities that are adjacent to the current
+	// city. Once we find that lowest value we change the path array
+	// to reflect the city whose path makes our minimum path.
+	for(int k = 0; k < max; k++){
+		for(int i = 0; i < max; i++){
+			for(int j = 0; j < max; j++){
+				if(dArr[i][j] > dArr[i][k] + dArr[k][j]){
+					dArr[i][j] = (dArr[i][k] + dArr[k][j]);
+					pArr[i][j] = k;
+				}
+			}
+		}
+	}cout<<"The distance from New York City to Toronto is: "<<dArr[0][10]<<endl;
+	nameStack.push(index);
+	//This pushes the entire path onto a stack, since the path is
+	//in reverse order in the path array, pushing the values onto
+	//the stack will give us the path from NYC to Toronto.
+	while(!done){
+		nameStack.push(pArr[0][index]);
+		index = pArr[0][index];
+		if(index == 1){
+			done = true;
+		}
+	}cout<<"The path from New York City to Toronto is: ";
+	while(!nameStack.empty()){
+		cout<<nameArr[nameStack.top()]<< " ";
+		nameStack.pop();
+	}
+};
+int main(int argc, char* argv[]){
+	if(argc != 1){
+		cout<<"Please only write the executable."<<endl;
+		return 1;
+	}else{
+		dynamicProgramming();
+	}
+}
+My output is:
+"The distance from New York City to Toronto is: 460 miles
+The path from New York City to Toronto is: New York City Scranton Binghamton Syracuse Rochester Buffalo Toronto "
+When I change the distance from New York City to Scranton from 100 to 700 I get the output:
+"The distance from New York City to Toronto is: 470 miles
+The path from New York City to Toronto is: New York City Albany Syracuse Rochester Buffalo Toronto "
